@@ -7,26 +7,19 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   async onModuleInit() {
-    // Membuka koneksi ke database saat aplikasi start
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await this.$connect();
   }
 
   async onModuleDestroy() {
-    // Menutup koneksi database saat aplikasi dimatikan (graceful shutdown)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await this.$disconnect();
   }
 
-  // Opsi tambahan: Membersihkan database (berguna untuk testing)
   async cleanDatabase() {
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const models = Reflect.getMetadata('prisma:models', this) || [];
-      for (const model of models) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        await this[model].deleteMany();
-      }
-    }
+    if (process.env.NODE_ENV !== 'test') return;
+
+    // Explicit type untuk type-safety
+    const prisma = this as PrismaClient;
+    await prisma.message.deleteMany();
+    await prisma.user.deleteMany();
   }
 }
